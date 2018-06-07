@@ -29,13 +29,14 @@ class Ball(pygame.sprite.Sprite):
     angle_left = 135
     angle_right = 45
     
-    def __init__(self, filename, paddle, blocks):
+    def __init__(self, filename, paddle, blocks, score):
         pygame.sprite.Sprite.__init__(self, self.containers)
         self.image = pygame.image.load(filename).convert()
         self.rect = self.image.get_rect()
         self.dx = self.dy = 0   #ボールの速度
         self.paddle = paddle    #パドルへの参照
         self.blocks = blocks    #ブロックグループへの参照
+        self.score = score      #スコアへの参照
         self.update = self.start
         self.hit = 0            #連続でブロックを壊した回数
         
@@ -76,6 +77,7 @@ class Ball(pygame.sprite.Sprite):
         if self.rect.top > SCREEN.bottom:
             self.update = self.start        #ボールを初期状態に
             self.hit = 0
+            self.score.add_score(-100)      #スコア減点-100
         #ボールと衝突したブロックリストを取得
         blocks_collided = pygame.sprite.spritecollide(self, self.blocks, True)
         if blocks_collided:     #衝突ブロックがある場合
@@ -97,7 +99,9 @@ class Ball(pygame.sprite.Sprite):
                 if block.rect.top < oldrect.top < block.rect.bottom < oldrect.bottom:
                     self.rect.top = block.rect.bottom
                     self.dy = - self.dy
-                self.hit += 1               #衝突回数
+                self.hit += 1                       #衝突回数
+                self.score.add_score(self.hit * 10) #衝突回数に応じてスコア加点
+
 
 #ブロックのクラス
 class Block(pygame.sprite.Sprite):
@@ -107,6 +111,18 @@ class Block(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.left = SCREEN.left + x * self.rect.width
         self.rect.top = SCREEN.top + y * self.rect.height
+
+#スコアのクラス
+class Score():
+    def __init__(self, x, y):
+        self.sysfont = pygame.font.SysFont(None, 20)
+        self.score = 0
+        (self.x, self.y) = (x, y)
+    def draw(self, screen):
+        img = self.sysfont.render("SCORE:" + str(self.score), True,(255, 255, 250))
+        screen.blit(img, (self.x, self.y))
+    def add_score(self, x):
+        self.score += x
 
 def main():
     pygame.init()
@@ -122,7 +138,8 @@ def main():
         for y in range(1, 11):
             Block("block.png", x, y)
     
-    Ball("ball.png", paddle, blocks)            #ボールを作成
+    score = Score(10, 10)                       #スコアを画面(10, 10)に表示
+    Ball("ball.png", paddle, blocks, score)            #ボールを作成
     clock = pygame.time.Clock()
 
     while(1):
@@ -130,6 +147,7 @@ def main():
         screen.fill((0, 20, 0))
         group.update()      #すべてのスプライトグループを更新
         group.draw(screen)  #すべてのスプライトグループを描画
+        score.draw(screen)  #スコアを描画
         pygame.display.update()
         for event in pygame.event.get():
             if event.type == QUIT:
