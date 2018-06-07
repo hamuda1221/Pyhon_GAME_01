@@ -73,9 +73,11 @@ class Ball(pygame.sprite.Sprite):
             angle = math.radians(y)         #反射角度
             self.dx = self.speed * math.cos(angle)
             self.dy = - self.speed * math.sin(angle)
+            self.paddle_sound.play()        #反射音
         #ボールを落とした場合
         if self.rect.top > SCREEN.bottom:
             self.update = self.start        #ボールを初期状態に
+            self.gameover_sound.play()
             self.hit = 0
             self.score.add_score(-100)      #スコア減点-100
         #ボールと衝突したブロックリストを取得
@@ -99,6 +101,7 @@ class Ball(pygame.sprite.Sprite):
                 if block.rect.top < oldrect.top < block.rect.bottom < oldrect.bottom:
                     self.rect.top = block.rect.bottom
                     self.dy = - self.dy
+                self.block_sound.play()
                 self.hit += 1                       #衝突回数
                 self.score.add_score(self.hit * 10) #衝突回数に応じてスコア加点
 
@@ -127,6 +130,9 @@ class Score():
 def main():
     pygame.init()
     screen = pygame.display.set_mode(SCREEN.size)
+    Ball.paddle_sound = pygame.mixer.Sound("flying_pan.wav")
+    Ball.block_sound = pygame.mixer.Sound("flashing.wav")
+    Ball.gameover_sound = pygame.mixer.Sound("poka.wav")
     group = pygame.sprite.RenderUpdates()       #描画用のスプライトグループ
     blocks = pygame.sprite.Group()              #衝突判定用のスプライトグループ
     Paddle.containers = group
