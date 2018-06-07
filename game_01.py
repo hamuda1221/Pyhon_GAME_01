@@ -7,34 +7,44 @@ Created on Thu Jun  7 22:28:23 2018
 
 import pygame
 from pygame.locals import *
+import math
 import sys
+import pygame.mixer
+SCREEN = Rect(0, 0, 400, 400)
+
+#パドルのクラス
+class Paddle(pygame.sprite.Sprite):
+    def __init__(self, filename):
+        pygame.sprite.Sprite.__init__(self, self.containers)
+        self.image = pygame.image.load(filename).convert()
+        self.rect = self.image.get_rect()
+        self.rect.bottom = SCREEN.bottom - 20           #パドルのy座標
+    def update(self):
+        self.rect.centerx = pygame.mouse.get_pos()[0]   #マウスのx座標をパドルのx座標に
+        self.rect.clamp_ip(SCREEN)
 
 def main():
-    pygame.init() # 初期化
-    screen = pygame.display.set_mode((500, 637)) # ウィンドウサイズの指定
-    """ 参考サイトのコードは以下の三行だけど上の一行でも動いた
-    (w, h) = (500, 637)
-    pygame.display.set_mode((w, h), 0, 32)
-    screen = pygame.display.get_surface()
-    """
-    pygame.display.set_caption("Pygame Test") # ウィンドウの上の方に出てくるアレの指定
-    bg = pygame.image.load("pygame_test.jpg").convert_alpha() # 背景画像の指定
-    rect_bg = bg.get_rect() # 画像のサイズ取得？？だと思われる
-
-    while(True):
-        screen.fill((0, 0, 0, 0)) # 背景色の指定。RGBのはず
-        screen.blit(bg, rect_bg) # 背景画像の描画
-        pygame.time.wait(30) # 更新間隔。多分ミリ秒
-        pygame.display.update() # 画面更新
-
-        for event in pygame.event.get(): # 終了処理
+    pygame.init()
+    screen = pygame.display.set_mode(SCREEN.size)
+    group = pygame.sprite.RenderUpdates()       #描画用のスプライトグループ
+    Paddle.containers = group
+    paddle = Paddle("paddle.png")               #パドルの作成
+    clock = pygame.time.Clock()
+    
+    while(1):
+        clock.tick(60)      #フレームレート(60fps)
+        screen.fill((0, 20, 0))
+        group.update()      #すべてのスプライトグループを更新
+        group.draw(screen)  #すべてのスプライトグループを描画
+        pygame.display.update()
+        for event in pygame.event.get():
             if event.type == QUIT:
                 pygame.quit()
                 sys.exit()
-            if event.type == KEYDOWN:
-                if event.key == K_ESCAPE:
-                    pygame.quit()
-                    sys.exit()
+            if event.type == KEYDOWN and event.key == K_ESCAPE:
+                pygame.quit()
+                sys.exit()
 
 if __name__ == "__main__":
     main()
+    
