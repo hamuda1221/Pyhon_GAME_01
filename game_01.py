@@ -118,7 +118,7 @@ class Block(pygame.sprite.Sprite):
 #スコアのクラス
 class Score():
     def __init__(self, x, y):
-        self.sysfont = pygame.font.SysFont(None, 20)
+        self.sysfont = pygame.font.Font("CURLZ___.TTF", 32)
         self.score = 0
         (self.x, self.y) = (x, y)
     def draw(self, screen):
@@ -141,7 +141,7 @@ def main():
     paddle = Paddle("paddle.png")               #パドルの作成
     #ブロックの生成（14 * 10）
     for x in range(1, 15):
-        for y in range(1, 11):
+        for y in range(3, 14):
             Block("block.png", x, y)
     
     score = Score(10, 10)                       #スコアを画面(10, 10)に表示
