@@ -130,6 +130,8 @@ class Score():
 def main():
     pygame.init()
     screen = pygame.display.set_mode(SCREEN.size)
+    pygame.mixer.music.load("seityou.mp3")     # 音楽ファイルの読み込み
+    pygame.mixer.music.play(-1)                # 音楽の再生
     Ball.paddle_sound = pygame.mixer.Sound("flying_pan.wav")
     Ball.block_sound = pygame.mixer.Sound("flashing.wav")
     Ball.gameover_sound = pygame.mixer.Sound("poka.wav")
@@ -157,9 +159,11 @@ def main():
         pygame.display.update()
         for event in pygame.event.get():
             if event.type == QUIT:
+                pygame.mixer.music.stop()               # 再生の終了
                 pygame.quit()
                 sys.exit()
             if event.type == KEYDOWN and event.key == K_ESCAPE:
+                pygame.mixer.music.stop()               # 再生の終了
                 pygame.quit()
                 sys.exit()
 
